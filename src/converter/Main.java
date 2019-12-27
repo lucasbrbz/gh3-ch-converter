@@ -1,4 +1,5 @@
 package converter;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import javax.swing.JOptionPane;
@@ -10,14 +11,16 @@ public class Main {
 		 JOptionPane.showMessageDialog(null,"Extracting charts...","GH3-CH Converter",JOptionPane.INFORMATION_MESSAGE);
 		 int count = 0, max = 3;
 		 boolean flag = false;
-		 while(true){
+		 while(true) {
 			 try {
-		         p = Runtime.getRuntime().exec("cmd.exe /k start chartExtractor.bat");
+		         p = Runtime.getRuntime().exec("cmd.exe /c start /chartExtractor/chartExtractor.bat");
 		         p.waitFor();
 		         BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream())); 
 		         String line; 
 		         while((line = reader.readLine()) != null) { 
-		        	 if(line.equals("END")) p.destroy();
+		        	 if(line.equals("END")) {
+				     	 p.destroy();
+				     }
 		         }
 		         break;
 		     } catch(Exception e) {
@@ -29,9 +32,21 @@ public class Main {
 		     }
 		 }
 		 if(flag) throw new Exception();
-		 JOptionPane.showMessageDialog(null,"Extraction successful! Press 'ok' to proceed...","GH3-CH Converter",JOptionPane.INFORMATION_MESSAGE);
 		 try {
 			 p = Runtime.getRuntime().exec("cmd.exe /k start chartRename.bat");
+		     p.waitFor();
+		     BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream())); 
+		     String line; 
+		     while((line = reader.readLine()) != null) { 
+			     if(line.equals("END")) {
+			     	 p.destroy();
+			     }
+		     }
+		 } catch(Exception e) {
+ 
+		 }
+		 try {
+			 p = Runtime.getRuntime().exec("cmd.exe /k start msvRename.bat");
 		     p.waitFor();
 		     BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream())); 
 		     String line; 
