@@ -1,5 +1,6 @@
-package converter;
+package main;
 
+import converter.Wave;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import javax.swing.JOptionPane;
