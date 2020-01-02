@@ -1,4 +1,7 @@
 @echo off
+cd chartExtractor
+move Charts ../..
+cd ../../Charts
 ren slowride.chart 1-1.chart
 ren talkdirtytome.chart 1-2.chart
 ren hitmewithyourbestshot.chart 1-3.chart

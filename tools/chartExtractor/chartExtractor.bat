@@ -106,6 +106,8 @@ echo.
 echo.
 echo You will now see lots of text flying past. Do not worry - all is well!
 
+copy %DISK%/MUSIC ../..
+
 REM Let's move on to our extracted data
 cd Extracted\songs\
 
