@@ -9,6 +9,7 @@ import javax.swing.border.EmptyBorder;
 public class Wait extends JFrame {
 
 	private JPanel contentPane;
+	private String text;
 
 	public Wait(int set,int song) {
 		super("GH3-CH Converter");
@@ -26,7 +27,10 @@ public class Wait extends JFrame {
 		progressBar.setIndeterminate(true);
 		getContentPane().add(progressBar);
 		
-		String text = String.format("Converting %d-%d.wav...",set,song);
+		if(set == 'b')
+			text = String.format("Converting %c-%d.wav...",set,song);
+		else
+			text = String.format("Converting %d-%d.wav...",set,song);
 		JLabel lblNewLabel = new JLabel(text);
 		lblNewLabel.setBounds(5, 11, 229, 14);
 		contentPane.add(lblNewLabel);

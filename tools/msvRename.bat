@@ -1,4 +1,5 @@
 @echo off
+mode con:cols=60 lines=20
 cd ..
 md tmp
 cd MUSIC/0
@@ -86,5 +87,6 @@ RMDIR /S /Q MUSIC
 REN tmp Music
 cd Tools
 MOVE audio-converter.exe ../Music
+MOVE bonus-converter.exe ../Music
 MOVE MSVWavConverter.bat ../Music
 echo END

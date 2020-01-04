@@ -1,4 +1,5 @@
 @echo off
+mode con:cols=60 lines=20
 cd chartExtractor
 move Charts ../..
 cd ../../Charts

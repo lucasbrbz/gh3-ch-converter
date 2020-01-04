@@ -3,8 +3,10 @@ package controller;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
@@ -19,7 +21,7 @@ public class Main {
 	private static Wait wait_frame;
 	private static ArrayList<Integer> selectedStreams;
 	private static int first;
-	private static int step;
+	private static int step = 1;
 	
 	public static void main(String[] args) throws Exception {
 		
@@ -45,6 +47,7 @@ public class Main {
 
 				 }
 				step++;
+				write(f);
 			case 2:
 				try {
 					p = Runtime.getRuntime().exec("cmd.exe /c cd tools & start chartRename.bat & exit");
@@ -59,6 +62,7 @@ public class Main {
 
 				 }
 				step++;
+				write(f);
 			case 3:
 				JOptionPane.showMessageDialog(null,"Extracting songs...","GH3-CH Converter",JOptionPane.INFORMATION_MESSAGE);
 				try {
@@ -74,6 +78,7 @@ public class Main {
 
 				 }
 			    step++;
+			    write(f);
 			case 4:
 			    try {
 			    	p = Runtime.getRuntime().exec("cmd.exe /c cd Music & start MSVWavConverter.bat & exit");
@@ -88,6 +93,7 @@ public class Main {
 
 				 }
 			    step++;
+			    write(f);
 			case 5:
 				JOptionPane.showMessageDialog(null,"Select audio streams to be merged (Double check if there's\n"
 						+ "any audio on them or you will end up with a mute audio file)","GH3-CH Converter",JOptionPane.WARNING_MESSAGE);
@@ -104,8 +110,13 @@ public class Main {
 						Wave.merge(i,j,selectedStreams,first);
 					}
 				}
+				for(int i=1;i<=25;i++) {
+					wait_frame = new Wait('b',i);
+					Wave.merge('b',i,selectedStreams,first);
+				}
 				try {
-					p = Runtime.getRuntime().exec("cmd.exe /c cd Music & move audio-converter.exe ../tools & move MSVWavConverter.bat ../tools & exit");
+					p = Runtime.getRuntime().exec("cmd.exe /c cd Music & move audio-converter.exe ../tools"
+							+ "& move bonus-converter.exe ../tools & move MSVWavConverter.bat ../tools & exit");
 					p.waitFor();
 				    reader = new BufferedReader(new InputStreamReader(p.getInputStream())); 
 				    while((line = reader.readLine()) != null) { 
@@ -116,6 +127,7 @@ public class Main {
 				 } catch(Exception e) {
 
 				 }
+				f.delete();
 		}
 	}
 	
@@ -127,13 +139,16 @@ public class Main {
 			br.close();
 			fr.close();
 		} else {
-			FileWriter fw = new FileWriter(f);
-	        BufferedWriter bw = new BufferedWriter(fw);
-	        bw.write("1");
-	        step = 1;
-	        bw.close();
-	        fw.close();
+			write(f);
 		}
+	}
+	
+	public static void write(File f) throws Exception {
+		FileWriter fw = new FileWriter(f);
+        BufferedWriter bw = new BufferedWriter(fw);
+        bw.write(step);
+        bw.close();
+        fw.close();
 	}
 	
 	public static Wait getWaitFrame() {
