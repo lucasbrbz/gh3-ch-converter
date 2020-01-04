@@ -5,34 +5,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import javax.swing.JOptionPane;
+
+import controller.Main;
 
 public class Wave {
 
-	public void merge() {			
+	public static void merge(int set,int song,ArrayList<Integer> selectedStreams,int first) {
+		Main.getWaitFrame().setVisible(true);
 		try 
 		{
 			File outputFile = null;
-			for(int i=2;i<=5;i++) {
-				
-				String wavFile1 = String.format("%d-%d-1.wav",1,1);
-				String wavFile2 = String.format("%d-%d-%d.wav",1,1,i);
-				
-				List<AudioInputStream> audioInputStreamList = new ArrayList<AudioInputStream>();		
-				AudioInputStream wave1 =  AudioSystem.getAudioInputStream(new File("C:/Users/Lucas/Desktop/tmp/"+wavFile1));
-				audioInputStreamList.add(wave1);					
-				AudioInputStream wave2 =  AudioSystem.getAudioInputStream(new File("C:/Users/Lucas/Desktop/tmp/"+wavFile2));			
-				audioInputStreamList.add(wave2);
-				AudioFormat	audioFormat = wave1.getFormat();
-				
-				AudioInputStream merged = new MixingAudioInputStream(audioFormat, audioInputStreamList);	
-				outputFile = new File("C:/Users/Lucas/Desktop/tmp/tmp/1-1.wav");
-				AudioSystem.write(merged,AudioFileFormat.Type.WAVE,outputFile);
+			AudioInputStream wave = null;
+			List<AudioInputStream> audioInputStreamList = new ArrayList<AudioInputStream>();
+					
+			for(int i : selectedStreams.subList(first,selectedStreams.size())) {
+				String wavFile = String.format("%d-%d-%d.wav",set,song,i);
+				wave =  AudioSystem.getAudioInputStream(new File("./Music/" + wavFile));
+				audioInputStreamList.add(wave);				
 			}
-			Ogg.convert(outputFile);
 			
+			AudioInputStream merged = new MixingAudioInputStream(wave.getFormat(), audioInputStreamList);
+			String out = String.format("%d-%d.wav",set,song);
+			outputFile = new File("./Music/" + out);
+			AudioSystem.write(merged,AudioFileFormat.Type.WAVE,outputFile);
+			Ogg.convert(outputFile);
+			Main.getWaitFrame().dispose();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}	
