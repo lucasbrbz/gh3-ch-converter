@@ -3,34 +3,30 @@ package controller;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import javax.swing.JOptionPane;
 
-import view.*;
-import converter.Wave;
+import view.About;
 
 public class Main {
 	
-	private static Selection selection_frame = new Selection();
-	private static Wait wait_frame;
-	private static ArrayList<Integer> selectedStreams;
-	private static int first;
 	private static int step = 1;
+	private static About about_frame = new About();
 	
 	public static void main(String[] args) throws Exception {
-		
+
+		LinkedHashMap<String,String> setlist = new LinkedHashMap<String,String>();
 		Process p = null;
 		BufferedReader reader;
 		String line;
-		File f = new File("./tools/converter.log");
+		File f = new File("./tools/converter.dat");
 		init(f);		
-		
+
 		switch(step) {
 			case 1:
 				JOptionPane.showMessageDialog(null,"Extracting charts...","GH3-CH Converter",JOptionPane.INFORMATION_MESSAGE);
@@ -80,58 +76,38 @@ public class Main {
 			    step++;
 			    write(f);
 			case 4:
-			    try {
-			    	p = Runtime.getRuntime().exec("cmd.exe /c cd Music & start MSVWavConverter.bat & exit");
-				    p.waitFor();
-				    reader = new BufferedReader(new InputStreamReader(p.getInputStream())); 
-				    while((line = reader.readLine()) != null) { 
-					    if(line.equals("END")) {
-					    	p.destroy();
-					    }
-				     }
+			    try { 
+			    	p = Runtime.getRuntime().exec("cmd.exe /c cd tools & move *.exe ../Music"
+			    			+ "& move MSVWavConverter.bat ../Music & cd ../Music & start MSVWavConverter.bat & exit");
+					p.waitFor();
+					reader = new BufferedReader(new InputStreamReader(p.getInputStream())); 
+					while((line = reader.readLine()) != null) { 
+						if(line.equals("END")) {
+						   	p.destroy();
+						}
+					}
+					p = Runtime.getRuntime().exec("cmd.exe /c cd ../Music & move *.exe ../tools"
+							+ "& move MSVWavConverter.bat ../tools & exit");
+					p.waitFor();
+					reader = new BufferedReader(new InputStreamReader(p.getInputStream())); 
+					while((line = reader.readLine()) != null) { 
+						if(line.equals("END")) {
+						   	p.destroy();
+						}
+					}
+					step++;
 				 } catch(Exception e) {
 
 				 }
-			    step++;
 			    write(f);
 			case 5:
-				JOptionPane.showMessageDialog(null,"Select audio streams to be merged (Double check if there's\n"
-						+ "any audio on them or you will end up with a mute audio file)","GH3-CH Converter",JOptionPane.WARNING_MESSAGE);
-				selection_frame.setVisible(true);
-				while(true) {
-					System.out.print("");
-					if(selection_frame.getStatus())
-						break;
-				}
-				for(int i=1;i<=8;i++) {
-					for(int j=1;j<=5;j++) {
-						if(i == 8 && j == 5) break;
-						wait_frame = new Wait(i,j);
-						Wave.merge(i,j,selectedStreams,first);
-					}
-				}
-				for(int i=1;i<=25;i++) {
-					wait_frame = new Wait('b',i);
-					Wave.merge('b',i,selectedStreams,first);
-				}
-				try {
-					p = Runtime.getRuntime().exec("cmd.exe /c cd Music & move audio-converter.exe ../tools"
-							+ "& move bonus-converter.exe ../tools & move MSVWavConverter.bat ../tools & exit");
-					p.waitFor();
-				    reader = new BufferedReader(new InputStreamReader(p.getInputStream())); 
-				    while((line = reader.readLine()) != null) { 
-					    if(line.equals("END")) {
-					    	p.destroy();
-					    }
-				     }
-				 } catch(Exception e) {
-
-				 }
-				f.delete();
+				setSetlist(setlist);
+//				f.delete();
+				about_frame.setVisible(true);
 		}
 	}
 	
-	public static void init(File f) throws Exception {
+	private static void init(File f) throws Exception {
 		if(f.exists()) {
 			FileReader fr = new FileReader(f);
 			BufferedReader br = new BufferedReader(fr);
@@ -143,39 +119,24 @@ public class Main {
 		}
 	}
 	
-	public static void write(File f) throws Exception {
+	private static void write(File f) throws Exception {
 		FileWriter fw = new FileWriter(f);
         BufferedWriter bw = new BufferedWriter(fw);
-        bw.write(step);
+        bw.write(step + 48);
         bw.close();
         fw.close();
 	}
 	
-	public static Wait getWaitFrame() {
-		return wait_frame;
-	}
-	
-	public static void setList(ArrayList<Integer> list,int qtd) {
-		selectedStreams = list;
-		switch(qtd) {
-			case 1:
-				first = 0;
-				break;
-			case 3:
-				first = 1;
-				break;
-			case 6:
-				first = 3;
-				break;
-			case 10:
-				first = 6;
-				break;
-			case 15:
-				first = 10;
-				break;
-			case 21:
-				first = 15;
-				break;
+	private static void setSetlist(LinkedHashMap<String,String> setlist) throws Exception {
+		FileReader fr = new FileReader("setlist.txt");
+		BufferedReader br = new BufferedReader(fr);
+		String line,aux;
+		int i = 1,j = 1;
+		while((line = br.readLine()) != null) { 
+			aux = String.format("%d-%d",i,j);
+			setlist.put(aux,line);
 		}
+		br.close();
+		fr.close();
 	}
 }
