@@ -5,11 +5,15 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.LinkedHashMap;
 
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileFilter;
 
 import view.About;
 
@@ -86,6 +90,7 @@ public class Main {
 						   	p.destroy();
 						}
 					}
+					JOptionPane.showMessageDialog(null,"move back","GH3-CH Converter",JOptionPane.INFORMATION_MESSAGE);
 					p = Runtime.getRuntime().exec("cmd.exe /c cd ../Music & move *.exe ../tools"
 							+ "& move MSVWavConverter.bat ../tools & exit");
 					p.waitFor();
@@ -95,13 +100,34 @@ public class Main {
 						   	p.destroy();
 						}
 					}
-					step++;
 				 } catch(Exception e) {
 
 				 }
+			    step++;
 			    write(f);
 			case 5:
-				setSetlist(setlist);
+				int opt = JOptionPane.showConfirmDialog(null,"Do you wish to import a setlist?","GH3-CH Converter",JOptionPane.YES_NO_OPTION);
+				if(opt == 0) {
+					boolean flag = true;
+					FileWriter fw = new FileWriter(new File("setlist.txt"));
+					BufferedWriter bw = new BufferedWriter(fw);
+					bw.write("null");
+					bw.close();
+					fw.close();
+					while(flag) {
+						JOptionPane.showMessageDialog(null,"Please fill setlist.txt with your information in order and formatted"
+								+ "\n\"artist - song\" line by line and press OK to continue...","GH3-CH Converter",JOptionPane.WARNING_MESSAGE);
+						FileReader fr = new FileReader(new File("setlist.txt"));
+						BufferedReader br = new BufferedReader(fr);
+						if(br.readLine().equals("null")) flag = true;
+						else flag = false;
+						br.close();
+						fr.close();
+					}
+					mkSetlist(setlist);
+					mkChartDirectory(setlist);	
+					JOptionPane.showMessageDialog(null,"All charts created!","GH3-CH Converter",JOptionPane.INFORMATION_MESSAGE);
+				}
 //				f.delete();
 				about_frame.setVisible(true);
 		}
@@ -127,16 +153,60 @@ public class Main {
         fw.close();
 	}
 	
-	private static void setSetlist(LinkedHashMap<String,String> setlist) throws Exception {
+	private static void mkSetlist(LinkedHashMap<String,String> setlist) throws Exception {
 		FileReader fr = new FileReader("setlist.txt");
 		BufferedReader br = new BufferedReader(fr);
 		String line,aux;
-		int i = 1,j = 1;
-		while((line = br.readLine()) != null) { 
-			aux = String.format("%d-%d",i,j);
-			setlist.put(aux,line);
+		int i = 1,j = 1,k = 1;
+		while((line = br.readLine()) != null) {
+			if(i == 8 && j == 5) {
+				aux = String.format("b-%d",k);
+				setlist.put(aux,line);
+				k++;
+			} else {
+				if(j == 6) {
+					i++;
+					j = 1;
+				}
+				aux = String.format("%d-%d",i,j);
+				setlist.put(aux,line);
+				j++;
+			}
 		}
 		br.close();
 		fr.close();
+	}
+	
+	private static void mkChartDirectory(LinkedHashMap<String,String> setlist)  {
+		String charter = JOptionPane.showInputDialog(null,"Charter name:","GH3-CH Converter",JOptionPane.INFORMATION_MESSAGE);
+		setlist.forEach((k,v) -> {
+			try {
+				String command = "cmd.exe /c cd Charts & move " + k + ".chart ../Music/"+ k +"/notes.chart";
+				Process p = Runtime.getRuntime().exec(command);
+			} catch (IOException e) {
+
+			}
+			String[] split = v.split("-");
+			FileWriter fw;
+			try {
+				fw = new FileWriter(new File("./Music/" + k + "/song.ini"));
+				BufferedWriter bw = new BufferedWriter(fw);
+		        bw.write("[Song]");
+		        bw.newLine();
+		        bw.write("name = " + split[1]);
+		        bw.newLine();
+		        bw.write("artist = " + split[0]);
+		        bw.newLine();
+		        bw.write("charter = " + charter);
+		        bw.close();
+		        fw.close();
+			} catch (IOException e) {
+
+			}
+			File chart = new File("./Music/" + k + "/" + k + ".chart");
+			chart.renameTo(new File("./Music/" + k + "/notes.chart"));
+			File dir = new File("./Music/" + k);
+			dir.renameTo(new File("./Music/" + v));
+		});
 	}
 }

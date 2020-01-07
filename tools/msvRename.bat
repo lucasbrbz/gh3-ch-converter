@@ -85,8 +85,4 @@ MOVE F6A3347D.IMF ../../tmp/5-1.IMF
 cd ../..
 RMDIR /S /Q MUSIC
 REN tmp Music
-cd Tools
-MOVE audio-converter.exe ../Music
-MOVE bonus-converter.exe ../Music
-MOVE MSVWavConverter.bat ../Music
 echo END

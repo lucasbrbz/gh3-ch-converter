@@ -3,6 +3,7 @@
 TITLE MSVWavConverter - Splitting MSV files
 mode con:cols=60 lines=21
 
+IF EXIST 8-4 GOTO END
 IF EXIST 8-4-6.vag GOTO BONUS_SPLIT
 
 FOR /L %%i IN (1,1,8) DO (
@@ -66,7 +67,7 @@ FOR /L %%i IN (1,1,8) DO (
 
 :BONUS_CONV
 
-IF EXIST b-25-6.wav GOTO END
+IF EXIST b-25-6.wav GOTO FOLDERS
 
 echo Converting bonus songs...
 echo.
@@ -91,6 +92,27 @@ echo Cleaning up the mess...
 
 DEL *.vag
 DEL *.IMF
+
+:FOLDERS
+
+IF EXIST 8-4 GOTO BONUS_FOLDERS
+
+FOR /L %%i IN (1,1,8) DO (
+	FOR /L %%j IN (1,1,5) DO (
+		IF %%i==8 (IF %%j==5 GOTO BONUS_FOLDERS)
+		MD %%i-%%j
+		FOR /L %%k IN (1,1,6) DO MOVE %%i-%%j-%%k.wav %%i-%%j
+	)
+)
+
+:BONUS_FOLDERS
+
+IF EXIST b-25 GOTO END
+
+FOR /L %%i IN (1,1,25) DO (
+		MD b-%%i
+		FOR /L %%k IN (1,1,6) DO MOVE b-%%i-%%k.wav b-%%i
+	)
 
 :END
 
